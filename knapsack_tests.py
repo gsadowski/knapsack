@@ -1,12 +1,13 @@
 from item import Item
 import knapsack
+from functools import reduce
 
 def print_items_info(items):
-    print "total profit {}".format(reduce(lambda total,item: total+item.profit, items, 0))
-    print "total weight {}".format(reduce(lambda total,item: total+item.weight, items, 0))
-    print "items"
+    print("total profit {}".format(reduce(lambda total,item: total+item.profit, items, 0)))
+    print("total weight {}".format(reduce(lambda total,item: total+item.weight, items, 0)))
+    print("items")
     for item in items:
-        print item,
+        print(item,)
 
 random_items = [
     Item(100, 100),
@@ -28,12 +29,15 @@ random_positive_items = [
     Item(200, 200)
     ]
 
-print(knapsack.zero_one_knapsack(random_positive_items, 800))
+optimal_profit, selected_items = knapsack.zero_one_knapsack(random_positive_items, 800)
+print(optimal_profit)
+print_items_info(selected_items)
 
-print(knapsack.net_zero_knapsack(random_items, 75))
+optimal_profit, selected_items = knapsack.net_zero_knapsack(random_items, 25)
+print(optimal_profit)
+print_items_info(selected_items)
 
 #common factor
-#return items
 
 #for item_index in range(0, len(items)):
 #    for weight in range (0, max_weight+1):
