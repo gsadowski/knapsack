@@ -33,7 +33,7 @@ optimal_profit, selected_items = knapsack.zero_one_knapsack(random_positive_item
 print(optimal_profit)
 print_items_info(selected_items)
 
-optimal_profit, selected_items = knapsack.net_zero_knapsack(random_items, 25)
+optimal_profit, selected_items = knapsack.net_zero_knapsack(random_items, 50)
 print(optimal_profit)
 print_items_info(selected_items)
 

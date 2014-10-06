@@ -1,8 +1,13 @@
 from item import Item
 from functools import reduce
+from fractions import gcd
 
 # http://en.wikipedia.org/wiki/Knapsack_problem#0.2F1_knapsack_problem
 def zero_one_knapsack(items, max_weight):
+
+    greatest_common_divisor = reduce(lambda current_gcd,item: gcd(current_gcd, item.weight), items, max_weight)
+    items = [Item(item.profit, int(item.weight / greatest_common_divisor)) for item in items]
+    max_weight = int(max_weight / greatest_common_divisor)
 
     max_values = [[0 for j in range(0, max_weight+1)] for i in range(0, len(items) + 1)]
     selected_items = [[False for j in range(0, max_weight+1)] for i in range(0, len(items))]
@@ -33,6 +38,8 @@ def zero_one_knapsack(items, max_weight):
         if selected_items[item_index][remaining_weight]:
             included_items.append(items[item_index]) 
             remaining_weight -= items[item_index].weight
+
+    included_items = [Item(item.profit, int(item.weight * greatest_common_divisor)) for item in included_items]
 
     # max profit for all items given the maximum weight restriction
     return (max_values[len(items)][max_weight], included_items)
