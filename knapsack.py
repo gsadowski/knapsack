@@ -30,20 +30,25 @@ def zero_one_knapsack(items, max_weight):
             else: # we can't include this item at this weight
                 max_values[max_values_index][weight] = max_values[max_values_index - 1][weight] # profit if this item is not included
 
-    # iterate over items in reverse to figure out which ones were selected
+    # iterate over items in reverse to figure out which ones were selected for each possible knapsack weight capacity
     # because of the way we construct the set of items, if we are keeping item k, we store it and then look at what we would keep in a knapsack of weight remaining_weight - k.weight
-    included_items = []
-    remaining_weight = max_weight
-    for item_index in reversed(range(0, len(items))):
-        if selected_items[item_index][remaining_weight]:
-            included_items.append(items[item_index]) 
-            remaining_weight -= items[item_index].weight
+    remaining_weights = range(0, max_weight+1) # each possible max weight
+    included_items_by_capacity = [[] for i in range(0, max_weight+1)] # for each possible max weight store the included items
 
-    included_items = [Item(item.profit, int(item.weight * greatest_common_divisor)) for item in included_items]
+    for item_index in reversed(range(0, len(items))):
+        for index, weight in enumerate(remaining_weights):
+            if selected_items[item_index][weight]:
+                included_items_by_capacity[index].append(items[item_index])
+                remaining_weights[index] -= items[item_index].weight
+
+    included_items = [Item(item.profit, int(item.weight * greatest_common_divisor)) for item in included_items_by_capacity[max_weight]]
 
     # max profit for all items given the maximum weight restriction
     return (max_values[len(items)][max_weight], included_items)
 
+
+
+# nets negative and positive weight items to zero within the given tolerance while maximizing profit
 def net_zero_knapsack(items, tolerance):
 
     # divide the items between positive and negative weights

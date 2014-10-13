@@ -7,7 +7,7 @@ def print_items_info(items):
     print("total weight {}".format(reduce(lambda total,item: total+item.weight, items, 0)))
     print("items")
     for item in items:
-        print(item,)
+        print(item)
 
 random_items = [
     Item(100, 100),
@@ -36,8 +36,6 @@ print_items_info(selected_items)
 optimal_profit, selected_items = knapsack.net_zero_knapsack(random_items, 50)
 print(optimal_profit)
 print_items_info(selected_items)
-
-#common factor
 
 #for item_index in range(0, len(items)):
 #    for weight in range (0, max_weight+1):
