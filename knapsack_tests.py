@@ -29,14 +29,33 @@ random_positive_items = [
     Item(200, 200)
     ]
 
-optimal_profit, selected_items = knapsack.zero_one_knapsack(random_positive_items, 800)
+tricky_test_items = [
+    Item(50, 50),
+    Item(50, 50),
+    Item(50, 50),
+    Item(25, 25),
+    Item(45, -45),
+    Item(45, -45),
+    Item(45, -45)
+    ]
+
+optimal_profit, weight_of_included_items, selected_items, included_items_by_capacity = knapsack.zero_one_knapsack(random_positive_items, 800)
 print(optimal_profit)
+print(weight_of_included_items)
 print_items_info(selected_items)
 
-optimal_profit, selected_items = knapsack.net_zero_knapsack(random_items, 50)
+optimal_profit, weight_of_included_items, selected_items, included_items_by_capacity = knapsack.net_zero_knapsack(random_items, 50)
 print(optimal_profit)
+print(weight_of_included_items)
+print_items_info(selected_items)
+
+optimal_profit, weight_of_included_items, selected_items, included_items_by_capacity = knapsack.net_zero_knapsack(tricky_test_items, 5)
+print(optimal_profit)
+print(weight_of_included_items)
 print_items_info(selected_items)
 
 #for item_index in range(0, len(items)):
 #    for weight in range (0, max_weight+1):
 #        print "item {} weight {} profit {}".format(item_index, weight, max_values[item_index][weight])
+
+# TODO separate out the gcd scaling from the knapsack

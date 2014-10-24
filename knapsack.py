@@ -32,8 +32,8 @@ def zero_one_knapsack(items, max_weight):
 
     # iterate over items in reverse to figure out which ones were selected for each possible knapsack weight capacity
     # because of the way we construct the set of items, if we are keeping item k, we store it and then look at what we would keep in a knapsack of weight remaining_weight - k.weight
-    remaining_weights = range(0, max_weight+1) # each possible max weight
-    included_items_by_capacity = [[] for i in range(0, max_weight+1)] # for each possible max weight store the included items
+    remaining_weights = range(0, max_weight + 1) # each possible max weight
+    included_items_by_capacity = [[] for i in range(0, max_weight + 1)] # for each possible max weight store the included items
 
     for item_index in reversed(range(0, len(items))):
         for index, weight in enumerate(remaining_weights):
@@ -41,10 +41,15 @@ def zero_one_knapsack(items, max_weight):
                 included_items_by_capacity[index].append(items[item_index])
                 remaining_weights[index] -= items[item_index].weight
 
-    included_items = [Item(item.profit, int(item.weight * greatest_common_divisor)) for item in included_items_by_capacity[max_weight]]
+    scaled_included_items_by_capacity = [[] for i in range(0, max_weight*greatest_common_divisor + 1)]
+    for capacity_index in range(0, max_weight*greatest_common_divisor + 1):
+        for item in included_items_by_capacity[capacity_index//greatest_common_divisor]:
+            scaled_included_items_by_capacity[capacity_index].append(Item(item.profit, int(item.weight * greatest_common_divisor)))
+
+    weight_of_included_items = reduce(lambda weight, item: weight+item.weight, scaled_included_items_by_capacity[max_weight*greatest_common_divisor], 0)
 
     # max profit for all items given the maximum weight restriction
-    return (max_values[len(items)][max_weight], included_items)
+    return (max_values[len(items)][max_weight], weight_of_included_items, scaled_included_items_by_capacity[max_weight*greatest_common_divisor], scaled_included_items_by_capacity)
 
 
 
@@ -63,11 +68,29 @@ def net_zero_knapsack(items, tolerance):
 
     # pack the heavier of the two sets of items into a weight capacity of the smaller set (+ threshold)
     if total_positive < total_negative:
-        optimal_profit, included_items = zero_one_knapsack(negative_items_as_positive, total_positive + tolerance)
+        optimal_profit, weight_of_included_items, included_items, included_items_by_capacity = zero_one_knapsack(negative_items_as_positive, total_positive + tolerance)
         included_items = map(lambda item: Item(item.profit, -item.weight), included_items) # convert back to negative weights
-        included_items += positive_items
+        smaller_weight_items = positive_items
     else:
-        optimal_profit, included_items = zero_one_knapsack(positive_items, total_negative + tolerance)
-        included_items += negative_items
+        optimal_profit, weight_of_included_items, included_items, included_items_by_capacity = zero_one_knapsack(positive_items, total_negative + tolerance)
+        smaller_weight_items = negative_items
 
-    return optimal_profit, included_items
+    weight_of_smaller_weight_items = reduce(lambda weight, item: weight+item.weight, smaller_weight_items, 0)
+
+    if abs(weight_of_included_items + weight_of_smaller_weight_items) <= tolerance:
+        return optimal_profit, weight_of_included_items + weight_of_smaller_weight_items, included_items + smaller_weight_items, included_items_by_capacity
+
+    #p, w, i, smaller_items_by_capacity = zero_one_knapsack(smaller_weight_items, weight_of_smaller_weight_items)
+
+    #smaller_items_capacity_index = weight_of_smaller_weight_items
+    #larger_items_capacity = 3
+
+    return optimal_profit, weight_of_included_items, included_items + smaller_weight_items, included_items_by_capacity
+
+
+
+
+
+
+
+
