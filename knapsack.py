@@ -69,23 +69,44 @@ def net_zero_knapsack(items, tolerance):
     # pack the heavier of the two sets of items into a weight capacity of the smaller set (+ threshold)
     if total_positive < total_negative:
         optimal_profit, weight_of_included_items, included_items, included_items_by_capacity = zero_one_knapsack(negative_items_as_positive, total_positive + tolerance)
-        included_items = map(lambda item: Item(item.profit, -item.weight), included_items) # convert back to negative weights
         smaller_weight_items = positive_items
     else:
         optimal_profit, weight_of_included_items, included_items, included_items_by_capacity = zero_one_knapsack(positive_items, total_negative + tolerance)
-        smaller_weight_items = negative_items
+        smaller_weight_items = negative_items_as_positive
 
     weight_of_smaller_weight_items = reduce(lambda weight, item: weight+item.weight, smaller_weight_items, 0)
+    profit_of_smaller_weight_items = reduce(lambda profit, item: profit+item.profit, smaller_weight_items, 0)
 
-    if abs(weight_of_included_items + weight_of_smaller_weight_items) <= tolerance:
-        return optimal_profit, weight_of_included_items + weight_of_smaller_weight_items, included_items + smaller_weight_items, included_items_by_capacity
+    if abs(weight_of_included_items - weight_of_smaller_weight_items) <= tolerance:
+        if total_positive < total_negative:
+            included_items = map(lambda item: Item(item.profit, -item.weight), included_items) # convert back to negative weights
+        else:
+            smaller_weight_items = map(lambda item: Item(item.profit, -item.weight), smaller_weight_items) # convert back to negative weights
+        return optimal_profit + profit_of_smaller_weight_items, weight_of_included_items + weight_of_smaller_weight_items, included_items + smaller_weight_items
 
-    #p, w, i, smaller_items_by_capacity = zero_one_knapsack(smaller_weight_items, weight_of_smaller_weight_items)
+    p, w, i, smaller_items_by_capacity = zero_one_knapsack(smaller_weight_items, weight_of_smaller_weight_items)
 
-    #smaller_items_capacity_index = weight_of_smaller_weight_items
-    #larger_items_capacity = 3
+    smaller_items_capacity_index = weight_of_smaller_weight_items
+    larger_items_capacity_index = weight_of_included_items
+    
+    while smaller_items_capacity_index >= 0 and larger_items_capacity_index >= 0:
 
-    return optimal_profit, weight_of_included_items, included_items + smaller_weight_items, included_items_by_capacity
+        smaller_items_weight_at_current_capacity = reduce(lambda weight, item: weight+item.weight, smaller_items_by_capacity[smaller_items_capacity_index], 0)
+        larger_items_weight_at_current_capacity = reduce(lambda weight, item: weight+item.weight, included_items_by_capacity[larger_items_capacity_index], 0)
+
+        if(abs(smaller_items_weight_at_current_capacity - larger_items_weight_at_current_capacity) <= tolerance):
+            smaller_items = smaller_items_by_capacity[smaller_items_capacity_index]
+            larger_items = included_items_by_capacity[larger_items_capacity_index]
+            smaller_items_profit = reduce(lambda profit, item: profit+item.profit, smaller_items, 0)
+            larger_items_profit = reduce(lambda profit, item: profit+item.profit, larger_items, 0)
+            return smaller_items_profit + larger_items_profit, smaller_items_weight_at_current_capacity + larger_items_weight_at_current_capacity, smaller_items + larger_items
+
+        if(smaller_items_weight_at_current_capacity > larger_items_weight_at_current_capacity):
+            smaller_items_capacity_index -= 1
+        else:
+            larger_items_capacity_index -= 1
+
+    raise IndexError('Net zero knapsack should have returned at zero weight knapsack indices')
 
 
 
