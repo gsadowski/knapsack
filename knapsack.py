@@ -99,6 +99,12 @@ def net_zero_knapsack(items, tolerance):
             larger_items = included_items_by_capacity[larger_items_capacity_index]
             smaller_items_profit = reduce(lambda profit, item: profit+item.profit, smaller_items, 0)
             larger_items_profit = reduce(lambda profit, item: profit+item.profit, larger_items, 0)
+            if total_positive < total_negative: # convert back to negative weights
+                larger_items = map(lambda item: Item(item.profit, -item.weight), larger_items)
+                larger_items_weight_at_current_capacity *= -1;
+            else:
+                smaller_items = map(lambda item: Item(item.profit, -item.weight), smaller_items)
+                smaller_items_weight_at_current_capacity *= -1;
             return smaller_items_profit + larger_items_profit, smaller_items_weight_at_current_capacity + larger_items_weight_at_current_capacity, smaller_items + larger_items
 
         if(smaller_items_weight_at_current_capacity > larger_items_weight_at_current_capacity):
